@@ -1,19 +1,34 @@
 (function() {
+    function contains(a, obj) {
+        for (var i = 0; i < a.length; i++) {
+            if (a[i] === obj) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function remove(a, obj) {
+        var i = a.indexOf(obj);
+        if (i > 0) {
+            a.splice(i, 1);
+        }
+    }
+
 	function init() {
 		chrome.storage.sync.get("hn_banned", function(value) {
-			var users = value.hn_banned || {};
+			var users = value.hn_banned;
+            if (users.constructor !== Array) {
+                users = [];
+            }
 
 			function banUser(username) {
-				users[username] = {
-					username: username,
-					blocked: true,
-					timestamp: Date.now()
-				};
+				users.push(username);
 				chrome.storage.sync.set({"hn_banned": users});
 			}
 
 			function unbanUser(username) {
-				delete users[username];
+                remove(users, username);
 				chrome.storage.sync.set({"hn_banned": users});
 			}
 
@@ -51,7 +66,7 @@
 					blockedMessage.remove();
 				}
 
-				if (users[username] !== undefined) {
+				if (contains(users, username)) {
 					contents.style.display = "none";
 
 					actor.innerHTML = "unblock";
