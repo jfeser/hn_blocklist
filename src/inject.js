@@ -15,89 +15,89 @@
         }
     }
 
-	function init() {
-		chrome.storage.sync.get("hn_banned", function(value) {
-			var users = value.hn_banned;
+    function init() {
+	chrome.storage.sync.get("hn_banned", function(value) {
+	    var users = value.hn_banned;
             if (users.constructor !== Array) {
                 users = [];
             }
 
-			function banUser(username) {
-				users.push(username);
-				chrome.storage.sync.set({"hn_banned": users});
-			}
+	    function banUser(username) {
+		users.push(username);
+		chrome.storage.sync.set({"hn_banned": users});
+	    }
 
-			function unbanUser(username) {
+	    function unbanUser(username) {
                 remove(users, username);
-				chrome.storage.sync.set({"hn_banned": users});
-			}
+		chrome.storage.sync.set({"hn_banned": users});
+	    }
 
-			function listener(changes, namespace) {
-				chrome.storage.onChanged.removeListener(listener);
-				init();
-			}
+	    function listener(changes, namespace) {
+		chrome.storage.onChanged.removeListener(listener);
+		init();
+	    }
 
-			chrome.storage.onChanged.addListener(listener);
+	    chrome.storage.onChanged.addListener(listener);
 
-			function handleItem(item) {
-				var username = item.querySelector("a").text;
-				var contents = item.querySelector(".comment span");
+	    function handleItem(item) {
+		var username = item.querySelector("a").text;
+		var contents = item.querySelector(".comment span");
 
-				var seperator = item.querySelector(".hn_bl_seperator");
+		var seperator = item.querySelector(".hn_bl_seperator");
 
-				if (seperator !== null) {
-					seperator.remove();
-					seperator = null;
-				}
+		if (seperator !== null) {
+		    seperator.remove();
+		    seperator = null;
+		}
 
-				seperator = document.createElement("span");
-				seperator.innerHTML = " | ";
-				seperator.className = "hn_bl_seperator";
+		seperator = document.createElement("span");
+		seperator.innerHTML = " | ";
+		seperator.className = "hn_bl_seperator";
 
-				var actor = document.createElement('a');
-				actor.href = "#";
+		var actor = document.createElement('a');
+		actor.href = "#";
 
-				item.querySelector(".comhead").appendChild(seperator);
-				seperator.appendChild(actor);
+		item.querySelector(".comhead").appendChild(seperator);
+		seperator.appendChild(actor);
 
-				var blockedMessage = item.querySelector(".blocked");
+		var blockedMessage = item.querySelector(".blocked");
 
-				if (blockedMessage !== null) {
-					blockedMessage.remove();
-				}
+		if (blockedMessage !== null) {
+		    blockedMessage.remove();
+		}
 
-				if (contains(users, username)) {
-					contents.style.display = "none";
+		if (contains(users, username)) {
+		    contents.style.display = "none";
 
-					actor.innerHTML = "unblock";
-					actor.onclick = function() {
-						unbanUser(username);
-						return false;
-					};
+		    actor.innerHTML = "unblock";
+		    actor.onclick = function() {
+			unbanUser(username);
+			return false;
+		    };
 
-					var banned = document.createElement('span');
-					banned.innerHTML = "[blocked]";
-					banned.className = "blocked";
+		    var banned = document.createElement('span');
+		    banned.innerHTML = "[blocked]";
+		    banned.className = "blocked";
 
-					item.querySelector(".comment").appendChild(banned);
-				} else {
-					contents.style.display = "block";
+		    item.querySelector(".comment").appendChild(banned);
+		} else {
+		    contents.style.display = "block";
 
-					actor.innerHTML = "block";
-					actor.onclick = function() {
-						banUser(username);
-						return false;
-					};
-				}
-			}
+		    actor.innerHTML = "block";
+		    actor.onclick = function() {
+			banUser(username);
+			return false;
+		    };
+		}
+	    }
 
-			var comments = document.querySelectorAll(".default");
+	    var comments = document.querySelectorAll(".default");
 
-			for (var i = 0; i < comments.length; ++i) {
-				handleItem(comments[i]);
-			}
-		});
-	}
+	    for (var i = 0; i < comments.length; ++i) {
+		handleItem(comments[i]);
+	    }
+	});
+    }
 
-	init();
+    init();
 })();
