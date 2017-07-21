@@ -18,7 +18,7 @@
     function init() {
 	chrome.storage.sync.get("hn_banned", function(value) {
 	    var users = value.hn_banned;
-            if (users.constructor !== Array) {
+            if (value.hn_banned === undefined) {
                 users = [];
             }
 
